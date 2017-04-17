@@ -61,28 +61,9 @@ KiteUploadMobile::GetTypeId(void)
                     MakeNameAccessor(&KiteUploadMobile::m_mobilePrefix), MakeNameChecker())
       .AddAttribute("TraceLifeTime", "LifeTime for trace Interest packet", StringValue("2s"),
                     MakeTimeAccessor(&KiteUploadMobile::m_traceLifeTime), MakeTimeChecker())
+      .AddAttribute("SendFrequency", "Interval between every two interests", StringValue("3s"),
+                    MakeTimeAccessor(&KiteUploadMobile::m_sendFrequency), MakeTimeChecker())
 
-      /*//copy from class Produer's AddAttribute
-      .AddAttribute("KitePrefix", "Prefix, for which producer has the data", StringValue("/"),
-                  MakeNameAccessor(&KiteUploadMobile::m_prefix), MakeNameChecker())
-      .AddAttribute(
-                  "KitePostfix",
-                  "Postfix that is added to the output data (e.g., for adding producer-uniqueness)",
-                  StringValue("/"), MakeNameAccessor(&KiteUploadMobile::m_postfix), MakeNameChecker())
-      .AddAttribute("KitePayloadSize", "Virtual payload size for Content packets", UintegerValue(1024),
-                 MakeUintegerAccessor(&KiteUploadMobile::m_virtualPayloadSize),
-                 MakeUintegerChecker<uint32_t>())
-      .AddAttribute("KiteFreshness", "Freshness of data packets, if 0, then unlimited freshness",
-                  TimeValue(Seconds(0)), MakeTimeAccessor(&KiteUploadMobile::m_freshness),
-                  MakeTimeChecker())
-      .AddAttribute(
-                "KiteSignature",
-                "Fake signature, 0 valid signature (default), other values application-specific",
-                UintegerValue(0), MakeUintegerAccessor(&KiteUploadMobile::m_signature),
-                MakeUintegerChecker<uint32_t>())
-      .AddAttribute("KiteKeyLocator",
-                "Name to be used for key locator.  If root, then key locator is not used",
-                NameValue(), MakeNameAccessor(&KiteUploadMobile::m_keyLocator), MakeNameChecker())*/
     ;
   return tid;
 }
@@ -90,9 +71,9 @@ KiteUploadMobile::GetTypeId(void)
 void
 KiteUploadMobile::OnInterest(shared_ptr<const Interest> interest)
 {
-  NS_LOG_INFO("MOBILE: Receive tracing Interest: " << interest->getName());
+  NS_LOG_INFO("\nMOBILE: Receive tracing Interest: " << interest->getName());
 
-  Producer::OnInterest(interest);
+  //Producer::OnInterest(interest);
 }
 
 KiteUploadMobile::KiteUploadMobile()
@@ -132,6 +113,9 @@ KiteUploadMobile::SendTrace()
   //NS_LOG_INFO("m_mobilePrefix is: " << m_mobilePrefix);
   //NS_LOG_INFO("m_serverPrefix is: " << m_serverPrefix);
 
+
+  //skip adding traceName's sequence number for testing mobile supporting -- move before getting
+  //if sequence number in every traceName is same, when mobility move before receiving tracing-interest, the tracing-interest should be pulled at the middle router.
   traceName.appendSequenceNumber(m_seq++);
 
   shared_ptr<Interest> interest = make_shared<Interest>();
@@ -142,11 +126,11 @@ KiteUploadMobile::SendTrace()
   time::milliseconds interestLifeTime(m_traceLifeTime.GetMilliSeconds());
   interest->setInterestLifetime(interestLifeTime);
 
-  NS_LOG_INFO("> Trace Interest named " << interest->getName() << " sent to " << m_serverPrefix);
+  NS_LOG_INFO("\n########\n> Trace Interest named " << interest->getName() << " sent to " << m_serverPrefix);
 
   //NS_LOG_INFO("TraceLifeTime: " << m_traceLifeTime);
 
-  Simulator::Schedule(Seconds(m_traceLifeTime.GetSeconds()), &KiteUploadMobile::SendTrace, this); // Send out trace at intervals equal to lifetime of trace
+  Simulator::Schedule(Seconds(m_sendFrequency.GetSeconds()), &KiteUploadMobile::SendTrace, this); // Send out trace at intervals equal to lifetime of trace
 
   m_transmittedInterests(interest, this, m_face);
   m_appLink->onReceiveInterest(*interest);

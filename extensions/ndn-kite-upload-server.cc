@@ -80,7 +80,7 @@ void
 KiteUploadServer::OnInterest(shared_ptr<const Interest> interest)
 {
   App::OnInterest(interest); // tracing inside
-  NS_LOG_INFO ("var m_interestName: \n" << m_interestName);
+  NS_LOG_INFO ("\nSERVER: m_interestName: " << m_interestName);
   NS_LOG_FUNCTION(this << interest);
 
   if (!m_active)
@@ -96,7 +96,7 @@ KiteUploadServer::OnInterest(shared_ptr<const Interest> interest)
   );
 
   // Consumer::SendPacket(); // non-traceable Interest packet
-  SendPacket(1); // send out a traceable Interest packet
+  SendPacket(2); // send out a traceable Interest packet
 }
 
 void
@@ -127,6 +127,8 @@ KiteUploadServer::SendPacket(uint8_t traceFlag)
 
   //
   shared_ptr<Name> nameWithSequence = make_shared<Name>(m_interestName);
+  //skip adding traceName's sequence number for testing mobile supporting -- move before getting
+  //if sequence number in every traceName is same, when mobility move before receiving tracing-interest, the tracing-interest should be pulled at the middle router.
   nameWithSequence->appendSequenceNumber(seq);
   //
 
@@ -145,7 +147,7 @@ KiteUploadServer::SendPacket(uint8_t traceFlag)
     interest->setTraceFlag(traceFlag);
   }
 
-  NS_LOG_INFO ("SERVER: Requesting Interest: \n" << *interest);
+  NS_LOG_INFO ("SERVER: Requesting Interest: " << *interest);
   NS_LOG_INFO("> Interest for " << seq);
 
   WillSendOutInterest(seq);
@@ -157,7 +159,7 @@ KiteUploadServer::SendPacket(uint8_t traceFlag)
 }
 
 void KiteUploadServer::OnData(shared_ptr<const Data> data){
-  NS_LOG_INFO("SERVER: Receive Data: " << data->getName());
+  NS_LOG_INFO("\nSERVER: Receive Data: " << data->getName());
   Consumer::OnData(data);
 }
 

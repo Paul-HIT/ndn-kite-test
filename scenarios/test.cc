@@ -92,7 +92,7 @@ main(int argc, char* argv[])
 	p2p.Install(nodes.Get(1), nodes.Get(2));
 	p2p.Install(nodes.Get(1), nodes.Get(3));
 
-
+	/*
 	//set mobile-nodes
 	Ptr<RandomRectanglePositionAllocator> positionAlloc = CreateObject<RandomRectanglePositionAllocator> ();
 	Ptr<UniformRandomVariable> x = CreateObject<UniformRandomVariable> ();
@@ -126,6 +126,32 @@ main(int argc, char* argv[])
 	mobility.SetPositionAllocator (posAlloc);
 	mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
 	mobility.Install (mobileNodes);
+	*/
+
+	//set mobile-nodes
+	Ptr<RandomRectanglePositionAllocator> positionAlloc = CreateObject<RandomRectanglePositionAllocator> ();
+	Ptr<UniformRandomVariable> x = CreateObject<UniformRandomVariable> ();
+	x->SetAttribute ("Min", DoubleValue (150));
+	x->SetAttribute ("Max", DoubleValue (250));
+	positionAlloc->SetX (x);
+	x->SetAttribute ("Min", DoubleValue (0));
+	x->SetAttribute ("Max", DoubleValue (100));
+	positionAlloc->SetY (x);
+
+	MobilityHelper a_mobility;
+	a_mobility.SetPositionAllocator(positionAlloc);
+	std::stringstream ss;
+	ss << "ns3::UniformRandomVariable[Min=" << speed << "|Max=" << speed << "]";
+
+	a_mobility.SetMobilityModel ("ns3::RandomWalk2dMobilityModel",
+		"Bounds", RectangleValue (Rectangle (249, 250, -100, 100)),
+		"Distance", DoubleValue (200),
+		"Speed", StringValue (ss.str ()));
+
+	NodeContainer mobileNodes;
+	mobileNodes.Create (mobileSize);
+	// make mobility move
+	a_mobility.Install (mobileNodes);
 
 
 	//apply wifi component on mobile-nodes and constant-nodes
@@ -150,17 +176,37 @@ main(int argc, char* argv[])
 	wifi.Install (wifiPhy, wifiMac, nodes.Get(2));
 	wifi.Install (wifiPhy, wifiMac, nodes.Get(3));
 
+	//a previous way to install wifi nodes
+	/*YansWifiPhyHelper wifiPhy = YansWifiPhyHelper::Default ();
+	YansWifiChannelHelper wifiChannel = YansWifiChannelHelper::Default ();
+	wifiPhy.SetChannel (wifiChannel.Create ());
+	wifiPhy.Set ("TxPowerStart",DoubleValue(5));
+	wifiPhy.Set ("TxPowerEnd",DoubleValue(5));
+	wifiPhy.Set ("TxPowerLevels",UintegerValue (1));
+	wifiPhy.Set ("TxGain",DoubleValue (1));
+	wifiPhy.Set ("RxGain",DoubleValue (1));
+
+	WifiHelper wifi = WifiHelper::Default ();
+	NqosWifiMacHelper wifiMac = NqosWifiMacHelper::Default ();
+	wifi.SetRemoteStationManager ("ns3::ConstantRateWifiManager");
+	wifiMac.SetType("ns3::AdhocWifiMac");
+
+	wifi.Install (wifiPhy, wifiMac, mobileNodes);
+	wifi.Install (wifiPhy, wifiMac, nodes.Get(2));
+	wifi.Install (wifiPhy, wifiMac, nodes.Get(3));
+
+	ndn::StackHelper ndnHelper;
+	ndnHelper.SetDefaultRoutes(true);
+	ndnHelper.InstallAll();*/
+
 	ndn::StackHelper ndnHelper;
 	ndnHelper.SetDefaultRoutes(true);
 	ndnHelper.InstallAll();
 
-	
+	//ndn::StrategyChoiceHelper::InstallAll<nfd::fw::TraceForwardingStrategy>("/");
 	ndn::StrategyChoiceHelper::Install<nfd::fw::TraceForwardingStrategy>(nodes.Get(1), "/");
 	ndn::StrategyChoiceHelper::Install<nfd::fw::TraceForwardingStrategy>(nodes.Get(2), "/");
 	ndn::StrategyChoiceHelper::Install<nfd::fw::TraceForwardingStrategy>(nodes.Get(3), "/");
-	/*ndn::StrategyChoiceHelper::Install(nodes.Get(2), "/", "nfd::fw::TraceForwardingStrategy");
-	ndn::StrategyChoiceHelper::Install(nodes.Get(1), "/", "nfd::fw::TraceForwardingStrategy");
-	ndn::StrategyChoiceHelper::Install(nodes.Get(3), "/", "nfd::fw::TraceForwardingStrategy");*/
 
 
 	// ndn::FibHelper::AddRoute (nodes.Get(1), serverPrefix, nodes.Get(0), 1);

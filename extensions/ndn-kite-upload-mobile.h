@@ -78,6 +78,7 @@ private:
   Name m_serverPrefix;
   Name m_mobilePrefix;
   Time m_traceLifeTime; // LifeTime for interest packet(IFI)
+  Time m_sendFrequency; // Interval between every two interests
 
   Ptr<UniformRandomVariable> m_rand; ///< @brief nonce generator
   Ptr<RandomVariableStream> m_random;

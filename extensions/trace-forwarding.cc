@@ -35,6 +35,19 @@ TraceForwardingStrategy::beforeExpirePendingInterest(const shared_ptr<pit::Entry
     // Should be implemented in trace table, set timers.
     // If IFI no longer stays in PIT, this will be changed
     NFD_LOG_INFO("NFD: PIT entry expires: " << pitEntry->getInterest().getTraceName());
+
+    if (pitEntry->hasInRecords()){
+      /*const pit::InRecordCollection &inRecordCollection = pitEntry->getInRecords();
+      for (pit::InRecordCollection::iterator it = inRecordCollection.begin(); it != inRecordCollection.end(); ++ it)
+      {
+        //cout << * it << ' ' ;
+      }*/
+      for (pit::InRecordCollection::iterator it = pitEntry->in_begin(); it != pitEntry->in_end(); it ++){
+        NFD_LOG_INFO("Face of expire-PIT-entry: " << it->getFace());
+      }
+      //NFD_LOG_INFO("Face of expire-PIT-entry: " << pitEntry->getInRecords());
+    }
+
     removeTraceEntry(pitEntry);
   }
 }
@@ -83,7 +96,7 @@ TraceForwardingStrategy::afterReceiveInterest(const Face& inFace, const Interest
   std::pair<shared_ptr<trace::Entry>, bool> res;
 
   if (interest.hasTraceName()) {
-    NFD_LOG_INFO("NFD: Receive Interest: " << interest.getName() << " from Face: " << inFace << ", with TraceName: " << interest.getTraceName());
+    NFD_LOG_INFO("\nNFD: Receive Interest: " << interest.getName() << " from Face: " << inFace << ", with TraceName: " << interest.getTraceName());
     // In this version, IFI is treated as normal interest, and stored in PIT, when a traceable interest comes, its name will be matched against all IFIs still alive in PIT.
     // In the discussion, there's a new design, where IFI are processed and stored as forwarding info in FIB, the forwarding strategy remains untouched, other than processing IFI and updating FIB entries.
     // Issue with the latter method, FIB is no longer stable, and FIB is mostly updated by RIB daemon, operating FIB within forwarding strategy may be unconventional.
@@ -97,7 +110,7 @@ TraceForwardingStrategy::afterReceiveInterest(const Face& inFace, const Interest
     }
   }
   else{
-    NFD_LOG_INFO("NFD: Receive Interest: " << interest.getName() << " from Face: " << inFace);
+    NFD_LOG_INFO("\nNFD: Receive Interest: " << interest.getName() << " from Face: " << inFace);
   }
   // else {
   //   NFD_LOG_INFO("NFD: Interest has no tracename: " << interest.getName());
