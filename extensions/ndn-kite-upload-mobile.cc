@@ -59,7 +59,7 @@ KiteUploadMobile::GetTypeId(void)
                     MakeNameAccessor(&KiteUploadMobile::m_serverPrefix), MakeNameChecker())
       .AddAttribute("MobilePrefix", "Name of this node", StringValue("/"),
                     MakeNameAccessor(&KiteUploadMobile::m_mobilePrefix), MakeNameChecker())
-      .AddAttribute("TraceLifeTime", "LifeTime for trace Interest packet", StringValue("2s"),
+      .AddAttribute("TraceLifeTime", "LifeTime for trace Interest packet", StringValue("10s"),
                     MakeTimeAccessor(&KiteUploadMobile::m_traceLifeTime), MakeTimeChecker())
       .AddAttribute("SendFrequency", "Interval between every two interests", StringValue("3s"),
                     MakeTimeAccessor(&KiteUploadMobile::m_sendFrequency), MakeTimeChecker())
@@ -116,17 +116,17 @@ KiteUploadMobile::SendTrace()
 
   //skip adding traceName's sequence number for testing mobile supporting -- move before getting
   //if sequence number in every traceName is same, when mobility move before receiving tracing-interest, the tracing-interest should be pulled at the middle router.
-  traceName.appendSequenceNumber(m_seq++);
+  //traceName.appendSequenceNumber(m_seq++);
 
   shared_ptr<Interest> interest = make_shared<Interest>();
   interest->setNonce(m_rand->GetValue(0, std::numeric_limits<uint32_t>::max()));
   interest->setName(*name);
   interest->setTraceName(traceName);
-  interest->setTraceFlag(0);
+  interest->setTraceFlag(1);
   time::milliseconds interestLifeTime(m_traceLifeTime.GetMilliSeconds());
   interest->setInterestLifetime(interestLifeTime);
 
-  NS_LOG_INFO("\n########\n> Trace Interest named " << interest->getName() << " sent to " << m_serverPrefix);
+  NS_LOG_INFO("\n########\n> Send trace Interest named " << *interest);
 
   //NS_LOG_INFO("TraceLifeTime: " << m_traceLifeTime);
 

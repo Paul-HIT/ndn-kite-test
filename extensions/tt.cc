@@ -17,14 +17,14 @@ Tt::Tt()
 }
 
 shared_ptr<Entry>
-Tt::match(const Interest& interest) const
+Tt::match(const Interest& interest, uint32_t flag) const
 {
   // check if trace entry already exists
   auto it = std::find_if(m_entries.begin(), m_entries.end(),
-    [&interest] (const shared_ptr<Entry>& entry) {
+    [&interest, flag] (const shared_ptr<Entry>& entry) {
       // initial part of name is guaranteed to be equal by NameTree
       // check implicit digest (or its absence) only
-      return entry->matchesInterest(interest);
+      return entry->matchesInterest(interest, flag);
     });
 
   if (it != m_entries.end()) {
@@ -59,7 +59,7 @@ Tt::find(const Interest& interest) const
 
 
 std::pair<shared_ptr<Entry>, bool>
-Tt::insert(Face& face, const Interest& interest)
+Tt::insert(Face& face, const Interest& interest, const shared_ptr<pit::Entry>& pitEntry)
 {
   BOOST_ASSERT(interest.hasTraceName());
 
@@ -70,7 +70,7 @@ Tt::insert(Face& face, const Interest& interest)
 
   NFD_LOG_INFO("TT: No match, adding entry for TraceName: " << interest.getTraceName() << ", table size: " << size());
 
-  entry = shared_ptr<Entry>(new Entry(face, interest));
+  entry = shared_ptr<Entry>(new Entry(face, interest, pitEntry));
   NFD_LOG_INFO("TT: Entry created with TraceName: " << entry->getInterest().getTraceName());
 
   m_entries.push_back(entry);

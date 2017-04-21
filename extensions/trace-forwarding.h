@@ -33,14 +33,16 @@ public:
   beforeSatisfyInterest ( const shared_ptr< pit::Entry > &  pitEntry, const Face &  inFace,
                       const Data &  data) override;
   
+  bool forwardByTFT(const Face& inFace, const Interest& interest, const shared_ptr<pit::Entry>& pitEntry);
+
   bool Pull(const Face& inFace, const Interest& interest, const shared_ptr<pit::Entry>& pitEntry);
 
 protected:
 
   const shared_ptr<trace::Entry>
-  matchTraceEntry(const shared_ptr<pit::Entry>& pitEntry)
+  matchTraceEntry(const shared_ptr<pit::Entry>& pitEntry, uint32_t flag = 0)
   {
-    return m_tt.match(pitEntry->getInterest());
+    return m_tt.match(pitEntry->getInterest(), flag);
   }
 
   void

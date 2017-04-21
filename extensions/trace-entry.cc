@@ -11,18 +11,22 @@
 namespace nfd {
 namespace trace {
 
-Entry::Entry(Face& face, const Interest& interest)
+Entry::Entry(Face& face, const Interest& interest, const shared_ptr<pit::Entry>& pitEntry)
   : m_face(face.shared_from_this())
   , m_interest(interest.shared_from_this()) // make sure that this interest has traceName
+  , m_pitEntry(pitEntry)
 {
 }
 
 bool
-Entry::matchesInterest(const Interest& interest) const
+Entry::matchesInterest(const Interest& interest, uint32_t flag) const
 {
-
-  return m_interest->getTraceName().compare(0, Name::npos,
-                                            interest.getName(), 0) == 0;
+	if (flag == 0) {
+		return m_interest->getTraceName().compare(0, Name::npos, interest.getName(), 0) == 0;
+	}
+	else{
+		return m_interest->getTraceName().compare(0, Name::npos, interest.getTraceName(), 0) == 0;
+	}
 }
 
 bool

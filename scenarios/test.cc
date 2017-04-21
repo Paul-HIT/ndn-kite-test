@@ -51,6 +51,7 @@ main(int argc, char* argv[])
 	//NS_LOG_INFO ("Simulation test");
 
 	LogComponentEnable("nfd.TraceForwardingStrategy", LOG_LEVEL_INFO);
+	LogComponentEnable("nfd.TraceTable", LOG_LEVEL_INFO);
 
 	// Setting default parameters for PointToPoint links and channels
 	Config::SetDefault("ns3::PointToPointNetDevice::DataRate", StringValue("1Mbps"));

@@ -35,7 +35,7 @@ public:
    *  \return an existing entry whose traceName equals the Interest's name
    */
   shared_ptr<Entry>
-  match(const Interest& interest) const;
+  match(const Interest& interest, uint32_t flag = 0) const;
 
   /** \brief finds a trace entry for Interest
    *  \param interest the Interest
@@ -50,7 +50,7 @@ public:
    *          and true for new entry, false for existing entry
    */
   std::pair<shared_ptr<Entry>, bool>
-  insert(Face& face, const Interest& interest);
+  insert(Face& face, const Interest& interest, const shared_ptr<pit::Entry>& pitEntry);
 
   /** \brief deletes an entry
    */

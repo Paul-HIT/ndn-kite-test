@@ -129,7 +129,8 @@ KiteUploadServer::SendPacket(uint8_t traceFlag)
   shared_ptr<Name> nameWithSequence = make_shared<Name>(m_interestName);
   //skip adding traceName's sequence number for testing mobile supporting -- move before getting
   //if sequence number in every traceName is same, when mobility move before receiving tracing-interest, the tracing-interest should be pulled at the middle router.
-  nameWithSequence->appendSequenceNumber(seq);
+  //nameWithSequence->appendSequenceNumber(seq);
+  
   //
 
   //NS_LOG_INFO("###");

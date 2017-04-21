@@ -10,6 +10,7 @@
 
 #include "face/face.hpp"
 #include "core/scheduler.hpp"
+#include "table/pit.hpp"
 
 namespace nfd {
 
@@ -28,7 +29,7 @@ namespace trace {
 class Entry : noncopyable
 {
 public:
-  Entry(Face& face, const Interest& interest);
+  Entry(Face& face, const Interest& interest, const shared_ptr<pit::Entry>& pitEntry);
 
   /** \return the representative Interest of the trace entry
    */
@@ -36,6 +37,12 @@ public:
   getInterest() const
   {
     return *m_interest;
+  }
+
+  const shared_ptr<pit::Entry>& 
+  getPitEntry() const
+  {
+    return m_pitEntry;
   }
 
   /** \return Interest Name
@@ -50,7 +57,7 @@ public:
    *  \param interest the Interest
    */
   bool
-  matchesInterest(const Interest& interest) const;
+  matchesInterest(const Interest& interest, uint32_t flag = 0) const;
 
   /** \return whether interest represents this entry, i.e., the interest has the same traceName(interest.traceName == this->traceName)
    *  \param interest the Interest
@@ -82,6 +89,7 @@ public: // hmm...
 private:
   shared_ptr<Face> m_face;
   shared_ptr<const Interest> m_interest;
+  shared_ptr<pit::Entry> m_pitEntry;
 };
 
 } // namespace trace
