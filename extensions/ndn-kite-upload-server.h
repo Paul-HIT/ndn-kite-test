@@ -54,7 +54,7 @@ public:
    * @brief Actually send packet, with TraceFlag option
    */
   void
-  SendPacket(uint8_t traceFlag);
+  SendPacket(uint8_t traceFlag, Name traceName);
 
 protected:
   // from App
@@ -71,6 +71,7 @@ protected:
   // m_interestName inherited from Consumer
   // Name mobilePrefix;
   Name m_serverPrefix;
+  Time m_tracingInterestLifeTime;
 };
 
 } // namespace ndn

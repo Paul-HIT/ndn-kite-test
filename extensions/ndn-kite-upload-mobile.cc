@@ -121,7 +121,7 @@ KiteUploadMobile::SendTrace()
   shared_ptr<Interest> interest = make_shared<Interest>();
   interest->setNonce(m_rand->GetValue(0, std::numeric_limits<uint32_t>::max()));
   interest->setName(*name);
-  interest->setTraceName(traceName);
+  //interest->setTraceName(traceName);
   interest->setTraceFlag(1);
   time::milliseconds interestLifeTime(m_traceLifeTime.GetMilliSeconds());
   interest->setInterestLifetime(interestLifeTime);

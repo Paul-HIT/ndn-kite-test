@@ -11,8 +11,10 @@
 #include "face/face.hpp"
 #include "fw/strategy.hpp"
 #include "fw/algorithm.hpp"
+#include "fw/forwarder.hpp"
 
 #include "tt.h" // wanted to name it Trace Information Table, but...
+#include "itt.h"
 
 namespace nfd {
 namespace fw {
@@ -61,11 +63,35 @@ protected:
     return m_tt.find(pitEntry->getInterest());
   }
 
+  //functions for TFT
+  const shared_ptr<itrace::Entry>
+  matchTFTEntry(const shared_ptr<pit::Entry>& pitEntry, uint32_t flag = 0)
+  {
+    return m_itt.match(pitEntry, flag);
+  }
+
+  void
+  removeTFTEntry(const shared_ptr<pit::Entry>& pitEntry)
+  {
+    shared_ptr<itrace::Entry> traceEntry = findTFTEntry(pitEntry);
+    if (traceEntry == nullptr) {
+      return;
+    }
+    m_itt.erase(traceEntry.get());
+  }
+
+  const shared_ptr<itrace::Entry>
+  findTFTEntry(const shared_ptr<pit::Entry>& pitEntry)
+  {
+    return m_itt.find(pitEntry->getInterest());
+  }
+
 public:
   static const Name STRATEGY_NAME;
 
 private:
   trace::Tt m_tt;
+  itrace::Itt m_itt;
 };
 
 } // namespace fw

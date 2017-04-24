@@ -53,6 +53,8 @@ KiteUploadServer::GetTypeId(void)
       .AddAttribute("MaxSeq", "Maximum sequence number to request",
                     IntegerValue(std::numeric_limits<uint32_t>::max()),
                     MakeIntegerAccessor(&KiteUploadServer::m_seqMax), MakeIntegerChecker<uint32_t>())
+      .AddAttribute("TracingInterestLifeTime", "LifeTime for trace Interest packet", StringValue("4s"),
+                    MakeTimeAccessor(&KiteUploadServer::m_tracingInterestLifeTime), MakeTimeChecker())
 
     ;
 
@@ -86,21 +88,27 @@ KiteUploadServer::OnInterest(shared_ptr<const Interest> interest)
   if (!m_active)
     return;
 
-  if (interest->getTraceName()[-1].isSequenceNumber()) {
+
+  /*if (interest->getTraceName()[-1].isSequenceNumber()) {
     m_seq = interest->getTraceName()[-1].toSequenceNumber();
     NS_LOG_INFO("SERVER: TraceName with TraceNameSeq: " << interest->getTraceName()[-1].toSequenceNumber());
   }
 
   NS_LOG_INFO("SERVER: node(" << GetNode()->GetId() << ") received Interest for: " << interest->getName()
                       << ", trace name: " << interest->getTraceName() << ", trace flag: " << int(interest->getTraceFlag())
-  );
+  );*/
 
   // Consumer::SendPacket(); // non-traceable Interest packet
-  SendPacket(2); // send out a traceable Interest packet
+  if (int(interest->getTraceFlag()) == 1){
+    SendPacket(2, interest->getName());
+  } // send out a traceable Interest packet
+  else{
+    //send a Data Packet;
+  }
 }
 
 void
-KiteUploadServer::SendPacket(uint8_t traceFlag)
+KiteUploadServer::SendPacket(uint8_t traceFlag, Name traceName)
 {
   if (!m_active)
     return;
@@ -141,9 +149,10 @@ KiteUploadServer::SendPacket(uint8_t traceFlag)
   shared_ptr<Interest> interest = make_shared<Interest>();
   interest->setNonce(m_rand->GetValue(0, std::numeric_limits<uint32_t>::max()));
   interest->setName(*nameWithSequence);
-  time::milliseconds interestLifeTime(m_interestLifeTime.GetMilliSeconds());
+  time::milliseconds interestLifeTime(m_tracingInterestLifeTime.GetMilliSeconds());
   interest->setInterestLifetime(interestLifeTime);
 
+  interest->setTraceName(traceName);
   if (traceFlag) {
     interest->setTraceFlag(traceFlag);
   }
